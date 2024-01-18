@@ -12,6 +12,7 @@ import lombok.SneakyThrows;
 import org.reflections.Reflections;
 import ua.trotsenko.di.annotation.Bean;
 import ua.trotsenko.di.annotation.Inject;
+import ua.trotsenko.di.annotation.Qualifier;
 import ua.trotsenko.di.contaxt.ApplicationContext;
 import ua.trotsenko.di.exception.NoSuchBeanException;
 import ua.trotsenko.di.exception.NoUniqueBeanException;
@@ -61,10 +62,11 @@ public class ApplicationContextImpl implements ApplicationContext {
   private void createBeans() {
     new Reflections(packageName)
         .getTypesAnnotatedWith(Bean.class)
-        .forEach(beanType -> beanContainer.put(getBeanName(beanType), createBean(beanType)));
+        .forEach(
+            beanType -> beanContainer.put(getQualifierBeanName(beanType), createBean(beanType)));
   }
 
-  private String getBeanName(Class<?> beanType) {
+  private String getQualifierBeanName(Class<?> beanType) {
     String beanName = beanType.getAnnotation(Bean.class).value();
     return beanName.isEmpty() ? ClassNameConverter.toBeanName(beanType.getSimpleName()) : beanName;
   }
@@ -107,6 +109,14 @@ public class ApplicationContextImpl implements ApplicationContext {
   @SneakyThrows
   private <T> void injectBean(Field field, T bean) {
     field.setAccessible(true);
-    field.set(bean, getBean(field.getType()));
+    if (field.isAnnotationPresent(Qualifier.class)) {
+      field.set(bean, getBean(getQualifierBeanName(field), field.getType()));
+    } else {
+      field.set(bean, getBean(field.getType()));
+    }
+  }
+
+  private String getQualifierBeanName(Field field) {
+    return field.getAnnotation(Qualifier.class).value();
   }
 }

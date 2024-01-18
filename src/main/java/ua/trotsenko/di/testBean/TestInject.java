@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.ToString;
 import ua.trotsenko.di.annotation.Bean;
 import ua.trotsenko.di.annotation.Inject;
+import ua.trotsenko.di.annotation.Qualifier;
 
 /**
  * {@link TestInject}
@@ -14,10 +15,11 @@ import ua.trotsenko.di.annotation.Inject;
 @Bean
 @ToString
 @Getter
-public class TestInject{
+public class TestInject {
 
   @Inject
-  private TestBean1Impl testBean1;
+  @Qualifier("testBean1Impl")
+  private TestBean testBean1;
   @Inject
   private TestBean2Impl testBean2;
 }
