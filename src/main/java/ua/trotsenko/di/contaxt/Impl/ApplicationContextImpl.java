@@ -1,5 +1,7 @@
 package ua.trotsenko.di.contaxt.Impl;
 
+import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +11,7 @@ import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import org.reflections.Reflections;
 import ua.trotsenko.di.annotation.Bean;
+import ua.trotsenko.di.annotation.Inject;
 import ua.trotsenko.di.contaxt.ApplicationContext;
 import ua.trotsenko.di.exception.NoSuchBeanException;
 import ua.trotsenko.di.exception.NoUniqueBeanException;
@@ -27,6 +30,7 @@ public class ApplicationContextImpl implements ApplicationContext {
   public ApplicationContextImpl(String packageName) {
     this.packageName = packageName;
     createBeans();
+    injectAllBeans();
   }
 
   @Override
@@ -91,5 +95,18 @@ public class ApplicationContextImpl implements ApplicationContext {
       throw new NoSuchBeanException(
           String.format("Bean container not contains [%s] bean", beanType.getName()));
     }
+  }
+
+  private void injectAllBeans() {
+    beanContainer.values()
+        .forEach(bean -> Arrays.stream(bean.getClass().getDeclaredFields())
+            .filter(field -> field.isAnnotationPresent(Inject.class))
+            .forEach(field -> injectBean(field, bean)));
+  }
+
+  @SneakyThrows
+  private <T> void injectBean(Field field, T bean) {
+    field.setAccessible(true);
+    field.set(bean, getBean(field.getType()));
   }
 }
