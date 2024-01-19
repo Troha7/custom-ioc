@@ -1,4 +1,4 @@
-package ua.trotsenko.di.testBean;
+package ua.trotsenko.di.test.bean;
 
 import lombok.Getter;
 import lombok.ToString;
