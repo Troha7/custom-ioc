@@ -4,13 +4,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * {@link Bean}
+ * {@link Component}
  *
  * @author Dmytro Trotsenko on 1/17/24
  */
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Bean {
+public @interface Component {
 
   String value() default "";
 }

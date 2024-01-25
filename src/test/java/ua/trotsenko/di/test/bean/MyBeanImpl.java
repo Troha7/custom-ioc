@@ -1,7 +1,7 @@
 package ua.trotsenko.di.test.bean;
 
 import lombok.Getter;
-import ua.trotsenko.di.annotation.Bean;
+import ua.trotsenko.di.annotation.Component;
 import ua.trotsenko.di.annotation.Inject;
 
 /**
@@ -10,7 +10,7 @@ import ua.trotsenko.di.annotation.Inject;
  * @author Dmytro Trotsenko on 1/18/24
  */
 
-@Bean("test")
+@Component("test")
 @Getter
 public class MyBeanImpl implements MyBean {
 

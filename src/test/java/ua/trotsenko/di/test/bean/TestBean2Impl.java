@@ -1,7 +1,7 @@
 package ua.trotsenko.di.test.bean;
 
 import lombok.ToString;
-import ua.trotsenko.di.annotation.Bean;
+import ua.trotsenko.di.annotation.Component;
 
 /**
  * {@link TestBean2Impl}
@@ -9,7 +9,7 @@ import ua.trotsenko.di.annotation.Bean;
  * @author Dmytro Trotsenko on 1/17/24
  */
 
-@Bean
+@Component
 @ToString
 public class TestBean2Impl implements TestBean{
 

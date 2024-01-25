@@ -2,7 +2,7 @@ package ua.trotsenko.di.test.bean;
 
 import lombok.Getter;
 import lombok.ToString;
-import ua.trotsenko.di.annotation.Bean;
+import ua.trotsenko.di.annotation.Component;
 import ua.trotsenko.di.annotation.Inject;
 import ua.trotsenko.di.annotation.Qualifier;
 
@@ -12,7 +12,7 @@ import ua.trotsenko.di.annotation.Qualifier;
  * @author Dmytro Trotsenko on 1/17/24
  */
 
-@Bean
+@Component
 @ToString
 @Getter
 public class TestInject {

@@ -1,6 +1,6 @@
 package ua.trotsenko.di.test;
 
-import ua.trotsenko.di.annotation.Bean;
+import ua.trotsenko.di.annotation.Component;
 import ua.trotsenko.di.test.bean.MyBean;
 
 /**
@@ -9,7 +9,7 @@ import ua.trotsenko.di.test.bean.MyBean;
  * @author Dmytro Trotsenko on 1/18/24
  */
 
-@Bean
+@Component
 public class NotScannedBean implements MyBean {
 
 }
