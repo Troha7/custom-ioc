@@ -1,6 +1,6 @@
 package ua.trotsenko.di.test.inject;
 
-import ua.trotsenko.di.annotation.Bean;
+import ua.trotsenko.di.annotation.Component;
 import ua.trotsenko.di.annotation.Inject;
 import ua.trotsenko.di.test.bean.TestBean;
 
@@ -10,7 +10,7 @@ import ua.trotsenko.di.test.bean.TestBean;
  * @author Dmytro Trotsenko on 1/17/24
  */
 
-@Bean
+@Component
 public class InjectInterfaceBean {
 
   @Inject
