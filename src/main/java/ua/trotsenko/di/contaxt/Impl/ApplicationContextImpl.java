@@ -9,14 +9,15 @@ import java.util.Map.Entry;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
-import org.reflections.Reflections;
-import ua.trotsenko.di.annotation.Bean;
 import ua.trotsenko.di.annotation.Inject;
 import ua.trotsenko.di.annotation.Qualifier;
+import ua.trotsenko.di.bean.factory.BeanFactory;
+import ua.trotsenko.di.bean.factory.DefaultListableBeanFactory;
+import ua.trotsenko.di.bean.scanner.BeanScanner;
+import ua.trotsenko.di.bean.scanner.ComponentBeanScanner;
 import ua.trotsenko.di.contaxt.ApplicationContext;
 import ua.trotsenko.di.exception.NoSuchBeanException;
 import ua.trotsenko.di.exception.NoUniqueBeanException;
-import ua.trotsenko.di.util.ClassNameConverter;
 
 /**
  * {@link ApplicationContextImpl}
@@ -26,10 +27,14 @@ import ua.trotsenko.di.util.ClassNameConverter;
 public class ApplicationContextImpl implements ApplicationContext {
 
   private final String packageName;
-  private final Map<String, Object> beanContainer = new HashMap<>();
+  private final BeanScanner beanScanner;
+  private final BeanFactory beanFactory;
+  private Map<String, Object> beanContainer = new HashMap<>();
 
   public ApplicationContextImpl(String packageName) {
     this.packageName = packageName;
+    this.beanScanner = new ComponentBeanScanner();
+    this.beanFactory = new DefaultListableBeanFactory();
     createBeans();
     injectAllBeans();
   }
@@ -60,20 +65,7 @@ public class ApplicationContextImpl implements ApplicationContext {
   }
 
   private void createBeans() {
-    new Reflections(packageName)
-        .getTypesAnnotatedWith(Bean.class)
-        .forEach(
-            beanType -> beanContainer.put(getQualifierBeanName(beanType), createBean(beanType)));
-  }
-
-  private String getQualifierBeanName(Class<?> beanType) {
-    String beanName = beanType.getAnnotation(Bean.class).value();
-    return beanName.isEmpty() ? ClassNameConverter.toBeanName(beanType.getSimpleName()) : beanName;
-  }
-
-  @SneakyThrows
-  private <T> T createBean(Class<T> beanType) {
-    return beanType.getDeclaredConstructor().newInstance();
+    beanContainer = beanFactory.createBeans(beanScanner.scan(packageName));
   }
 
   public <T> Collector<T, ?, T> toSingleton(Class<T> beanType) {
