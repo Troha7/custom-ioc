@@ -1,4 +1,4 @@
-package ua.trotsenko.di.util;
+package ua.trotsenko.di.bean.util;
 
 /**
  * {@link ClassNameConverter}
