@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 import org.reflections.Reflections;
 import ua.trotsenko.di.annotation.Component;
 import ua.trotsenko.di.bean.definition.BeanDefinition;
-import ua.trotsenko.di.bean.util.ClassNameConverter;
+import ua.trotsenko.di.bean.util.BeanUtils;
 
 /**
  * {@link ComponentBeanScanner}
@@ -23,7 +23,7 @@ public class ComponentBeanScanner implements BeanScanner {
 
   private BeanDefinition toBeanDefinition(Class<?> beanType) {
     String beanName = beanType.getAnnotation(Component.class).value();
-    String defaultBeanName = ClassNameConverter.toBeanName(beanType.getSimpleName());
+    String defaultBeanName = BeanUtils.toBeanName(beanType.getSimpleName());
     beanName = beanName.isEmpty() ? defaultBeanName : beanName;
     return new BeanDefinition(beanName, beanType);
   }
