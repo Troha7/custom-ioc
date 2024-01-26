@@ -1,16 +1,9 @@
 package ua.trotsenko.di.contaxt.Impl;
 
-import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import lombok.SneakyThrows;
-import ua.trotsenko.di.annotation.Inject;
-import ua.trotsenko.di.annotation.Qualifier;
 import ua.trotsenko.di.bean.factory.BeanFactory;
 import ua.trotsenko.di.bean.factory.DefaultListableBeanFactory;
 import ua.trotsenko.di.bean.scanner.BeanScanner;
@@ -36,25 +29,16 @@ public class ApplicationContextImpl implements ApplicationContext {
     this.beanScanner = new ComponentBeanScanner();
     this.beanFactory = new DefaultListableBeanFactory();
     createBeans();
-    injectAllBeans();
   }
 
   @Override
   public <T> T getBean(Class<T> beanType) throws NoSuchBeanException, NoUniqueBeanException {
-    return beanContainer.values().stream()
-        .filter(bean -> beanType.isAssignableFrom(bean.getClass()))
-        .map(beanType::cast)
-        .collect(toSingleton(beanType));
+    return beanFactory.getBean(beanType, beanContainer);
   }
 
   @Override
   public <T> T getBean(String name, Class<T> beanType) throws NoSuchBeanException {
-    var bean = beanContainer.get(name);
-    if (bean != null && beanType.isAssignableFrom(bean.getClass())) {
-      return beanType.cast(bean);
-    }
-    throw new NoSuchBeanException(
-        String.format("Bean container not contains [%s] bean", beanType.getName()));
+    return beanFactory.getBean(name, beanType, beanContainer);
   }
 
   @Override
@@ -68,47 +52,4 @@ public class ApplicationContextImpl implements ApplicationContext {
     beanContainer = beanFactory.createBeans(beanScanner.scan(packageName));
   }
 
-  public <T> Collector<T, ?, T> toSingleton(Class<T> beanType) {
-    return Collectors.collectingAndThen(Collectors.toList(), list ->
-    {
-      hasNoSuchBean(list, beanType);
-      hasNoUniqueBean(list, beanType);
-      return list.get(0);
-    });
-  }
-
-  private void hasNoUniqueBean(List<?> list, Class<?> beanType) {
-    if (list.size() > 1) {
-      throw new NoUniqueBeanException(
-          String.format("Bean container contains: %s [%s] beans", list.size(), beanType.getName()));
-    }
-  }
-
-  private void hasNoSuchBean(List<?> list, Class<?> beanType) {
-    if (list.size() < 1) {
-      throw new NoSuchBeanException(
-          String.format("Bean container not contains [%s] bean", beanType.getName()));
-    }
-  }
-
-  private void injectAllBeans() {
-    beanContainer.values()
-        .forEach(bean -> Arrays.stream(bean.getClass().getDeclaredFields())
-            .filter(field -> field.isAnnotationPresent(Inject.class))
-            .forEach(field -> injectBean(field, bean)));
-  }
-
-  @SneakyThrows
-  private <T> void injectBean(Field field, T bean) {
-    field.setAccessible(true);
-    if (field.isAnnotationPresent(Qualifier.class)) {
-      field.set(bean, getBean(getQualifierBeanName(field), field.getType()));
-    } else {
-      field.set(bean, getBean(field.getType()));
-    }
-  }
-
-  private String getQualifierBeanName(Field field) {
-    return field.getAnnotation(Qualifier.class).value();
-  }
 }
