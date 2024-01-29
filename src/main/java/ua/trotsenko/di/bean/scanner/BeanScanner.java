@@ -11,4 +11,5 @@ import ua.trotsenko.di.bean.definition.BeanDefinition;
 public interface BeanScanner {
 
   Map<String, BeanDefinition> scan(String packageName);
+
 }

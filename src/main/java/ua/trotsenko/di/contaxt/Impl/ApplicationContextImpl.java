@@ -8,6 +8,7 @@ import ua.trotsenko.di.bean.factory.BeanFactory;
 import ua.trotsenko.di.bean.factory.DefaultListableBeanFactory;
 import ua.trotsenko.di.bean.scanner.BeanScanner;
 import ua.trotsenko.di.bean.scanner.ComponentBeanScanner;
+import ua.trotsenko.di.bean.util.BeanUtils;
 import ua.trotsenko.di.contaxt.ApplicationContext;
 import ua.trotsenko.di.exception.NoSuchBeanException;
 import ua.trotsenko.di.exception.NoUniqueBeanException;
@@ -33,12 +34,20 @@ public class ApplicationContextImpl implements ApplicationContext {
 
   @Override
   public <T> T getBean(Class<T> beanType) throws NoSuchBeanException, NoUniqueBeanException {
-    return beanFactory.getBean(beanType, beanContainer);
+    return beanContainer.values().stream()
+        .filter(bean -> beanType.isAssignableFrom(bean.getClass()))
+        .map(beanType::cast)
+        .collect(BeanUtils.toSingleton(beanType));
   }
 
   @Override
   public <T> T getBean(String name, Class<T> beanType) throws NoSuchBeanException {
-    return beanFactory.getBean(name, beanType, beanContainer);
+    var bean = beanContainer.get(name);
+    if (bean != null && beanType.isAssignableFrom(bean.getClass())) {
+      return beanType.cast(bean);
+    }
+    throw new NoSuchBeanException(
+        String.format("Bean container not contains [%s] bean", beanType.getName()));
   }
 
   @Override
