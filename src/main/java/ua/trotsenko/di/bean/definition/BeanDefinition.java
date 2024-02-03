@@ -1,6 +1,5 @@
 package ua.trotsenko.di.bean.definition;
 
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Getter;
@@ -20,10 +19,10 @@ public class BeanDefinition {
 
   private final String name;
   private final Class<?> beanType;
-  private final Map<String, Field> beanDependencies = new HashMap<>();
+  private final Map<String, Object> beanDependencies = new HashMap<>();
 
-  public void addBeanDependency(String beanName, Field field){
-    this.beanDependencies.put(beanName, field);
+  public <T> void addBeanDependency(String beanName, T dependentObject) {
+    this.beanDependencies.put(beanName, dependentObject);
   }
 
 }
