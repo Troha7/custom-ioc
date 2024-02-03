@@ -1,5 +1,6 @@
 package ua.trotsenko.di.contaxt.Impl;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -8,6 +9,7 @@ import ua.trotsenko.di.bean.factory.BeanFactory;
 import ua.trotsenko.di.bean.factory.DefaultListableBeanFactory;
 import ua.trotsenko.di.bean.scanner.BeanScanner;
 import ua.trotsenko.di.bean.scanner.ComponentBeanScanner;
+import ua.trotsenko.di.bean.scanner.ConfigurationBeanScanner;
 import ua.trotsenko.di.bean.util.BeanUtils;
 import ua.trotsenko.di.contaxt.ApplicationContext;
 import ua.trotsenko.di.exception.NoSuchBeanException;
@@ -21,13 +23,13 @@ import ua.trotsenko.di.exception.NoUniqueBeanException;
 public class ApplicationContextImpl implements ApplicationContext {
 
   private final String packageName;
-  private final BeanScanner beanScanner;
+  private final BeanScanner[] scanners;
   private final BeanFactory beanFactory;
   private Map<String, Object> beanContainer = new HashMap<>();
 
   public ApplicationContextImpl(String packageName) {
     this.packageName = packageName;
-    this.beanScanner = new ComponentBeanScanner();
+    this.scanners = new BeanScanner[]{new ComponentBeanScanner(), new ConfigurationBeanScanner()};
     this.beanFactory = new DefaultListableBeanFactory();
     createBeans();
   }
@@ -58,7 +60,10 @@ public class ApplicationContextImpl implements ApplicationContext {
   }
 
   private void createBeans() {
-    beanContainer = beanFactory.createBeans(beanScanner.scan(packageName));
+    var componentNameToBeanDefinition = Arrays.stream(scanners)
+        .flatMap(s -> s.scan(packageName).entrySet().stream())
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    beanContainer = beanFactory.createBeans(componentNameToBeanDefinition);
   }
 
 }

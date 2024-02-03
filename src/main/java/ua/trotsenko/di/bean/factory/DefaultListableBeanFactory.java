@@ -37,18 +37,19 @@ public class DefaultListableBeanFactory implements BeanFactory {
     componentBeansMap.put(beanDefinition.getName(), createdBean);
 
     // Recursive dependency resolution
-    for (Entry<String, Field> dependency : beanDefinition.getBeanDependencies().entrySet()) {
+    for (Entry<String, Object> dependency : beanDefinition.getBeanDependencies().entrySet()) {
       BeanDefinition dependencyDefinition = beanDefinitionsMap.get(dependency.getKey());
 
       // Recursively create bean and its dependencies
       createBeanAndInjectDependencies(beanName, dependencyDefinition, beanDefinitionsMap);
 
-      injectDependency(beanName, componentBeansMap.get(dependency.getKey()), dependency.getValue());
+      injectDependency(beanName, componentBeansMap.get(dependency.getKey()),
+          (Field) dependency.getValue());
     }
   }
 
   @SneakyThrows
-  private void injectDependency(String beanName, Object dependencyBean, Field field) {
+  private <T extends Field> void injectDependency(String beanName, Object dependencyBean, T field) {
     Object bean = componentBeansMap.get(beanName);
     field.setAccessible(true);
     field.set(bean, dependencyBean);
